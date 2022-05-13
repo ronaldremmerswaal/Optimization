@@ -4,6 +4,7 @@ set(optim_SOURCES
   m_linesearch.f90
   m_multid_optim.f90
   m_oned_rootfinding.f90
+  m_poly_roots.f90
   m_optimization.f90
   )
 
