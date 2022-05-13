@@ -1,0 +1,120 @@
+module oned
+
+contains
+  
+  @Test
+  subroutine test_poly_roots()
+    use funit
+    use m_optimization
+
+    implicit none
+
+    real*8                  :: coeffs(0:4), roots_in_parts(4, 2), real_residual
+    complex                 :: roots(4), residual
+    integer                 :: degree, term, rdx, repeat
+    real*8, parameter       :: RESIDUAL_TOLERANCE = 1E-7
+    integer                 :: NR_REPETITIONS = 1E2, SZE = 3, SEED(33)
+
+    SEED = 1
+    call random_seed(put=SEED)
+
+    do degree=1,4
+      coeffs = 0.0
+      do repeat=1,NR_REPETITIONS
+        
+        call random_number(coeffs(4-degree:4))
+        coeffs(4-degree:4) = 2.0 * (coeffs(4-degree:4) - 0.5)
+        if (degree==4 .and. repeat==1) coeffs = [-1.2184800951032360E-002,0.82183979457219247&
+          ,0.72258784646496266,-0.40289970208349324,-0.72187179738511653]
+
+        if (abs(coeffs(4-degree)) < 1E-2) coeffs(4-degree) = 1.0
+
+        call polynomial_roots_deg4(coeffs, roots_in_parts(:, 1), roots_in_parts(:, 2))
+        roots = cmplx(roots_in_parts(:, 1), roots_in_parts(:, 2))
+        
+        do rdx=1,degree
+          residual = 0.0
+          do term=0,degree
+            residual = residual + coeffs(4-term) * roots(rdx) ** term
+          enddo
+
+          real_residual = abs(residual)
+          @assertEqual(0.0d0, real_residual, tolerance=RESIDUAL_TOLERANCE / abs(coeffs(4-degree)))
+        enddo
+      enddo
+    enddo
+
+  end subroutine test_poly_roots
+
+  @Test
+  subroutine test_bisection()
+    use funit
+    use m_optimization
+
+    implicit none
+
+    real*8                    :: x, xExact
+    real*8, parameter         :: X_TOLERANCE = 1E-15
+    integer, parameter      :: MAX_IT = 53
+
+    xExact = 2 * atan(1.0d0)
+    x = bisection(fun, 1.0d0, 2.0d0, X_TOLERANCE, MAX_IT)
+
+    @assertEqual(xExact, x, X_TOLERANCE)
+  contains
+    real*8 function fun(x) result(y)
+
+      implicit none
+
+      real*8, intent(in)      :: x
+
+      y = cos(x)
+    end
+  end subroutine
+
+  @Test
+  subroutine test_brent()
+    use funit
+    use m_optimization
+
+    implicit none
+
+    real*8                    :: x, xExact
+    real*8, parameter         :: X_TOLERANCE = 1E-14
+    integer, parameter      :: MAX_IT = 20
+    integer                 :: it
+
+    it = 0
+    xExact = 2 * atan(1.0d0)
+    x = brent(fun1, 1.0d0, 2.0d0, X_TOLERANCE, MAX_IT)
+
+    @assertEqual(xExact, x, X_TOLERANCE)
+    @assertLessThan(it, MAX_IT)
+
+    it = 0
+    xExact = -3.0
+    x = brent(fun2, -4.0d0, 4.0d0/3., X_TOLERANCE, MAX_IT)
+
+    @assertEqual(xExact, x, X_TOLERANCE)
+    @assertLessThan(it, MAX_IT)
+  contains
+    real*8 function fun1(x) result(y)
+
+      implicit none
+
+      real*8, intent(in)      :: x
+      it = it + 1
+      y = cos(x)
+    end
+
+    real*8 function fun2(x) result(y)
+
+      implicit none
+
+      real*8, intent(in)      :: x
+      it = it + 1
+      y = (x + 3) * (x - 1)**2
+    end
+  end subroutine
+
+end module

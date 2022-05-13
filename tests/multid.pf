@@ -1,0 +1,93 @@
+module multid
+
+contains
+  
+  @Test
+  subroutine test_optimize()
+    use funit
+    use m_optimization
+
+    implicit none
+
+    integer, parameter    :: N = 100
+    real*8, parameter       :: RESIDUAL_TOLERANCE = 1E-6, ERROR_TOLERANCE = 1E-6
+
+    real*8                :: x(N), x0(N), xExact(N)
+    integer               :: i, funCount
+
+    type(optimInfo)       :: info
+    type(optimOpts)       :: opts
+    type(lsOpts)          :: ls_opts
+
+    opts = optimOpts(maxFEval = 1E4, fTol = -1.0d0, gTol = RESIDUAL_TOLERANCE, errTol = ERROR_TOLERANCE,&
+      hStep = 1E-6, fdOrder = 2, verbose = .false.)
+    ls_opts = lsOpts(type=LS_MORE_THUENTE, decreaseCondition = 1E-1, curvatureCondition = 1E-3, &
+      stepFactor = 5E-1, xTol = 1E-16, stpMin = 1E-16, stpMax = 1E+16)
+
+    do i=1,N,2
+      x0(i) = -1.2
+      x0(i+1) = 1.0d0
+    enddo
+    xExact = 1.0d0
+
+    ! Using the exact gradient
+    funCount = 0
+    x = x0
+    call optimize(x, cost, opts, info, cost_and_grad)
+
+    @assertEqual(funCount, info%nrFEvals)
+    @assertEqual(0.0d0, info%normGrad, RESIDUAL_TOLERANCE)
+    @assertEqual(0.0d0, norm2(x - 1.0d0), ERROR_TOLERANCE)
+    @assertEqual(.true., info%success)
+
+    ! Using an approximate gradient
+    funCount = 0
+    x = x0
+    call optimize(x, cost, opts, info, ls_opts=ls_opts)
+
+    @assertEqual(funCount, info%nrFEvals)
+    @assertEqual(0.0d0, info%normGrad, RESIDUAL_TOLERANCE)
+    @assertEqual(0.0d0, norm2(x - 1.0d0), ERROR_TOLERANCE)
+    @assertEqual(.true., info%success)
+
+  contains
+    real*8 function cost(x) result(c)
+      implicit none
+
+      real*8, intent(in)    :: x(N)
+
+      ! Local variables
+      real*8              :: t1, t2
+      integer             :: i
+
+      c = 0.0d0
+      do i=1,N,2
+        t1 = 1.0d0 - x(i)
+        t2 = 1E1 * (x(i+1) - x(i)**2)
+        c = c + t1**2 + t2**2
+      enddo
+      funCount = funCount + 1
+    end
+    real*8 function cost_and_grad(g, x) result(c)
+      implicit none
+
+      real*8, intent(in)    :: x(N)
+      real*8, intent(out)   :: g(N)
+
+      ! Local variables
+      real*8              :: t1, t2
+      integer             :: i
+
+      c = 0.0d0
+      do i=1,N,2
+        t1 = 1.0d0 - x(i)
+        t2 = 1E1 * (x(i+1) - x(i)**2)
+        g(i+1) = 2E1 * t2
+        g(i) = -2.0d0 * (x(i) * g(i+1) + t1)
+        c = c + t1**2 + t2**2
+      enddo
+      funCount = funCount + 1
+    end
+
+  end subroutine
+end module

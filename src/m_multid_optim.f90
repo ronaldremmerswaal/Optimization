@@ -210,7 +210,7 @@ contains
 
       ! Local variables
       integer          :: j
-      real             :: fdir, fotherdir, xdir(nvars)
+      real*8           :: fdir, fotherdir, xdir(nvars)
 
       do j=1,nvars
         xdir = x
@@ -271,7 +271,7 @@ contains
       real*8, intent(in)      :: step, search(nvars), grad(nvars), prev_grad(nvars)
 
       ! Local variables
-      real                  :: sy_dot, yy_dot
+      real*8                  :: sy_dot, yy_dot
 
       last_idx = last_idx + 1
       if (last_idx > actual_max_nr_directions) last_idx = 1
