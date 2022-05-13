@@ -13,12 +13,12 @@ module m_linesearch
 
   type lsOpts
     integer               :: type
-    real                  :: decreaseCondition
-    real                  :: curvatureCondition
-    real                  :: stepFactor
-    real                  :: xTol
-    real                  :: stpMin
-    real                  :: stpMax
+    real*8                  :: decreaseCondition
+    real*8                  :: curvatureCondition
+    real*8                  :: stepFactor
+    real*8                  :: xTol
+    real*8                  :: stpMin
+    real*8                  :: stpMax
   end type
 
 
@@ -27,11 +27,11 @@ contains
   implicit none
 
   integer, intent(in) :: n
-  real, intent(in)   :: s(n), dginit
-  real, intent(inout):: f,stp
-  real, intent(inout):: x(n)
+  real*8, intent(in)   :: s(n), dginit
+  real*8, intent(inout):: f,stp
+  real*8, intent(inout):: x(n)
   integer, intent(out):: info
-  real, external     ::  fun
+  real*8, external     ::  fun
   integer, intent(in) :: maxfev
   type(lsOpts), intent(in) :: opts
 
@@ -174,11 +174,11 @@ contains
 !     &*********
   integer infoc,j,nfev
   logical brackt,stage1
-  real dg,dgm,dgtest,dgx,dgxm,dgy,dgym,   &
+  real*8 dg,dgm,dgtest,dgx,dgxm,dgy,dgym,   &
   &       finit,ftest1,fm,fx,fxm,fy,fym,p5,p66,stx,sty,       &
   &       stmin,stmax,width,width1,xtrapf
   real*8              :: x0(n), xdir(n)
-  real                :: ftol,gtol,xtol,stpmin,stpmax,hstep
+  real*8                :: ftol,gtol,xtol,stpmin,stpmax,hstep
 
   data p5,p66,xtrapf/0.5,0.66,4.0/
   info = 0
@@ -343,7 +343,7 @@ contains
   end
   subroutine cstep(stx,fx,dx,sty,fy,dy,stp,fp,dp,brackt,stpmin,stpmax,info)
   integer info
-  real stx,fx,dx,sty,fy,dy,stp,fp,dp,stpmin,stpmax
+  real*8 stx,fx,dx,sty,fy,dy,stp,fp,dp,stpmin,stpmax
   logical brackt,bound
 !     &*********
 !
@@ -405,7 +405,7 @@ contains
 !     Jorge J. More', David J. Thuente
 !
 !     &*********
-  real gamma,p,p66,q,r,s,sgnd,stpc,stpf,stpq,theta
+  real*8 gamma,p,p66,q,r,s,sgnd,stpc,stpf,stpq,theta
   data p66 /0.66/
   info = 0
 !
@@ -576,16 +576,16 @@ contains
   subroutine armijo_backtracking(fun, x, f_val, grad_val, dir, step, opts, maxIt, info, nr_fevals)
     implicit none
   
-    real, external          :: fun
-    real, intent(inout)     :: x(1:)
-    real, intent(in)        :: grad_val(1:), dir(1:)
-    real, intent(inout)     :: f_val, step
+    real*8, external          :: fun
+    real*8, intent(inout)     :: x(1:)
+    real*8, intent(in)        :: grad_val(1:), dir(1:)
+    real*8, intent(inout)     :: f_val, step
     type(lsOpts), intent(in) :: opts
     integer, intent(in)     :: maxIt
     integer, intent(out)    :: info, nr_fevals
   
     ! Local variables
-    real                    :: f_val0, dir_dot_grad, x_new(size(x, 1)), fHist(3), stepHist(3), numerator, denominator
+    real*8                    :: f_val0, dir_dot_grad, x_new(size(x, 1)), fHist(3), stepHist(3), numerator, denominator
     integer                 :: it, hdx, nrHist
   
     f_val0 = f_val

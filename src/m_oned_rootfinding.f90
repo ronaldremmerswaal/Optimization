@@ -1,17 +1,17 @@
 module m_oned_rootfinding
   
 contains
-  real function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn) result(xsol)
+  real*8 function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn) result(xsol)
   implicit none
 
-  real, external        :: fun
-  real, intent(in)      :: xaIn, xbIn, xTol
+  real*8, external        :: fun
+  real*8, intent(in)      :: xaIn, xbIn, xTol
   integer, intent(in)   :: maxIt
-  real, intent(in), optional :: faIn, fbIn
+  real*8, intent(in), optional :: faIn, fbIn
 
   ! Local variables
-  real                  :: xa, xb, fa, fb, fc, xc, xd, xe, xm, p, q, r, s
-  real                  :: toler
+  real*8                  :: xa, xb, fa, fb, fc, xc, xd, xe, xm, p, q, r, s
+  real*8                  :: toler
   integer               :: iter, flag
 
   xa = xaIn
@@ -121,16 +121,16 @@ contains
 
   end function
 
-  real function bisection(fun, xLeft, xRight, xTol, maxIt, fLeft, fRight) result(x)
+  real*8 function bisection(fun, xLeft, xRight, xTol, maxIt, fLeft, fRight) result(x)
   implicit none
 
-  real, external        :: fun
-  real, intent(in)      :: xLeft, xRight, xTol
+  real*8, external        :: fun
+  real*8, intent(in)      :: xLeft, xRight, xTol
   integer, intent(in)   :: maxIt
-  real, optional, intent(in) :: fLeft, fRight
+  real*8, optional, intent(in) :: fLeft, fRight
 
   ! Local variables
-  real                  :: fLeft_, fRight_, xMid, fMid, xRight_, xLeft_
+  real*8                  :: fLeft_, fRight_, xMid, fMid, xRight_, xLeft_
   integer               :: it
 
   if (present(fLeft)) then

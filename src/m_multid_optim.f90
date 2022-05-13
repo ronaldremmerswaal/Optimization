@@ -6,10 +6,10 @@ module m_multid_optim
 
   type optimOpts
     integer               :: maxFEval       ! Maximum nr function evaluations
-    real                  :: fTol           ! Stop if f(x) < fTol (f is signed!)
-    real                  :: gTol           ! Stop if |g(x)|_2 < gTol
-    real                  :: errTol         ! Stop if |x - x^*|_2 < errTol (use an error estimate)
-    real                  :: hStep          ! Step size used for FD approximation of gradient (depends on scaling of f, x)
+    real*8                :: fTol           ! Stop if f(x) < fTol (f is signed!)
+    real*8                :: gTol           ! Stop if |g(x)|_2 < gTol
+    real*8                :: errTol         ! Stop if |x - x^*|_2 < errTol (use an error estimate)
+    real*8                :: hStep          ! Step size used for FD approximation of gradient (depends on scaling of f, x)
     integer               :: fdOrder        ! 1/2
     logical               :: verbose        ! Print info
   end type
@@ -18,9 +18,9 @@ module m_multid_optim
     integer               :: nrFEvals
     integer               :: nrIterations
     integer               :: lineSearchFlag
-    real                  :: fVal
-    real                  :: normGrad
-    real                  :: step
+    real*8                :: fVal
+    real*8                :: normGrad
+    real*8                :: step
     logical               :: success
   end type
 
@@ -29,9 +29,9 @@ contains
   subroutine optimize(x, fun, opts, info, fun_and_grad, ls_opts)
     implicit none
 
-    real, intent(inout)   :: x(1:)
-    real, external        :: fun
-    real, external, optional :: fun_and_grad
+    real*8, intent(inout) :: x(1:)
+    real*8, external      :: fun
+    real*8, external, optional :: fun_and_grad
     type(optimOpts), intent(in) :: opts
     type(lsOpts), intent(in), optional :: ls_opts
     type(optimInfo), intent(out):: info
@@ -43,9 +43,9 @@ contains
     type(lsOpts)          :: ls_opts_
     integer               :: it, nr_fevals, nvars, ls_info, nr_directions, last_idx, ls_nr_fevals
     integer               :: actual_max_nr_directions
-    real                  :: fun_val, normGrad, errEst, step, rho(MAX_NR_LBFGS_DIRECTIONS), diag, prev_x(size(x, 1)), prev_fun_val
-    real                  :: search(size(x, 1)), grad(size(x, 1)), prev_grad(size(x, 1))
-    real                  :: Y(size(x, 1), MAX_NR_LBFGS_DIRECTIONS), S(size(x, 1), MAX_NR_LBFGS_DIRECTIONS)
+    real*8                :: fun_val, normGrad, errEst, step, rho(MAX_NR_LBFGS_DIRECTIONS), diag, prev_x(size(x, 1)), prev_fun_val
+    real*8                :: search(size(x, 1)), grad(size(x, 1)), prev_grad(size(x, 1))
+    real*8                :: Y(size(x, 1), MAX_NR_LBFGS_DIRECTIONS), S(size(x, 1), MAX_NR_LBFGS_DIRECTIONS)
     logical               :: hess_success
 
     nr_fevals = 0
@@ -106,7 +106,7 @@ contains
       search = -search
 
       ! Satisfy sufficient decrease condition (and curvature condition if MT is used)
-      step = merge(min(1.0, 1.0 / normGrad), 1.0, it==1)
+      step = merge(min(1.0, 1.0 / normGrad), 1.0d0, it==1)
       prev_fun_val = fun_val
       prev_x = x
       prev_grad = grad
@@ -155,11 +155,11 @@ contains
     info%lineSearchFlag = ls_info
 
   contains
-    real function evaluate_fun_and_grad(g, x) result(f)
+    real*8 function evaluate_fun_and_grad(g, x) result(f)
       implicit none
 
-      real, intent(out)   :: g(nvars)
-      real, intent(in)    :: x(nvars)
+      real*8, intent(out)   :: g(nvars)
+      real*8, intent(in)    :: x(nvars)
 
       if (present(fun_and_grad)) then
         f = fun_and_grad(g, x)
@@ -170,14 +170,14 @@ contains
       nr_fevals = nr_fevals + 1
     end
 
-    real function evaluate_fun_and_directional_derivative(g, x, dir) result(f)
+    real*8 function evaluate_fun_and_directional_derivative(g, x, dir) result(f)
       implicit none
 
-      real, intent(out)   :: g
-      real, intent(in)    :: x(nvars), dir(nvars)
+      real*8, intent(out)   :: g
+      real*8, intent(in)    :: x(nvars), dir(nvars)
 
       ! Local variables
-      real                :: normDir
+      real*8                :: normDir
 
       if (present(fun_and_grad)) then
         f = fun_and_grad(grad, x)
@@ -204,9 +204,9 @@ contains
     subroutine approx_gradient(grad, fun, f0, x)
       implicit none
 
-      real, intent(out):: grad(nvars)
-      real, external   :: fun
-      real, intent(in) :: x(nvars), f0
+      real*8, intent(out):: grad(nvars)
+      real*8, external   :: fun
+      real*8, intent(in) :: x(nvars), f0
 
       ! Local variables
       integer          :: j
@@ -230,9 +230,9 @@ contains
     subroutine apply_hessian_inverse(p, rhs, Y, S, rho, diag, nr_directions, last_idx, nvars)
       implicit none
 
-      real, intent(out)     :: p(nvars)
-      real, intent(in)      :: rhs(nvars), Y(nvars, MAX_NR_LBFGS_DIRECTIONS), S(nvars, MAX_NR_LBFGS_DIRECTIONS)
-      real, intent(in)      :: rho(MAX_NR_LBFGS_DIRECTIONS), diag
+      real*8, intent(out)     :: p(nvars)
+      real*8, intent(in)      :: rhs(nvars), Y(nvars, MAX_NR_LBFGS_DIRECTIONS), S(nvars, MAX_NR_LBFGS_DIRECTIONS)
+      real*8, intent(in)      :: rho(MAX_NR_LBFGS_DIRECTIONS), diag
       integer, intent(in)   :: nr_directions, last_idx, nvars
 
       ! Local variables
@@ -264,11 +264,11 @@ contains
       grad, prev_grad) result(success)
       implicit none
 
-      real, intent(inout)   :: Y(nvars, MAX_NR_LBFGS_DIRECTIONS), S(nvars, MAX_NR_LBFGS_DIRECTIONS), &
+      real*8, intent(inout)   :: Y(nvars, MAX_NR_LBFGS_DIRECTIONS), S(nvars, MAX_NR_LBFGS_DIRECTIONS), &
         rho(MAX_NR_LBFGS_DIRECTIONS), diag
       integer, intent(inout):: nr_directions, last_idx
       integer, intent(in)   :: nvars
-      real, intent(in)      :: step, search(nvars), grad(nvars), prev_grad(nvars)
+      real*8, intent(in)      :: step, search(nvars), grad(nvars), prev_grad(nvars)
 
       ! Local variables
       real                  :: sy_dot, yy_dot
