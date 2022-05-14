@@ -3,9 +3,9 @@ module oned
 contains
   
   @Test
-  subroutine test_poly_roots()
+  subroutine test_poly_roots_deg4()
     use funit
-    use m_optimization
+    use m_poly_roots
 
     implicit none
 
@@ -13,7 +13,7 @@ contains
     complex                 :: roots(4), residual
     integer                 :: degree, term, rdx, repeat
     real*8, parameter       :: RESIDUAL_TOLERANCE = 1E-7
-    integer                 :: NR_REPETITIONS = 1E2, SZE = 3, SEED(33)
+    integer                 :: NR_REPETITIONS = 1E2, SEED(33)
 
     SEED = 1
     call random_seed(put=SEED)
@@ -27,7 +27,7 @@ contains
         if (degree==4 .and. repeat==1) coeffs = [-1.2184800951032360E-002,0.82183979457219247&
           ,0.72258784646496266,-0.40289970208349324,-0.72187179738511653]
 
-        if (abs(coeffs(4-degree)) < 1E-2) coeffs(4-degree) = 1.0
+        if (abs(coeffs(4-degree)) < 1E-2) coeffs(4-degree) = 1E-2
 
         call polynomial_roots_deg4(coeffs, roots_in_parts(:, 1), roots_in_parts(:, 2))
         roots = cmplx(roots_in_parts(:, 1), roots_in_parts(:, 2))
@@ -44,7 +44,47 @@ contains
       enddo
     enddo
 
-  end subroutine test_poly_roots
+  end subroutine test_poly_roots_deg4
+
+  @Test
+  subroutine test_poly_roots_qbc()
+    use funit
+    use m_poly_roots
+
+    implicit none
+
+    real*8                  :: coeffs(0:3), roots_in_parts(3, 2), real_residual
+    complex                 :: roots(3), residual
+    integer                 :: degree, term, rdx, repeat
+    real*8, parameter       :: RESIDUAL_TOLERANCE = 1E-7
+    integer                 :: NR_REPETITIONS = 1E2, SEED(33)
+
+    SEED = 1
+    call random_seed(put=SEED)
+
+    degree = 3
+    coeffs = 0.0
+    do repeat=1,NR_REPETITIONS
+      
+      call random_number(coeffs)
+      if (abs(coeffs(0)) < 1E-2) coeffs(0) = 1E-2
+
+      call polynomial_roots_deg3(coeffs, roots_in_parts(:, 1), roots_in_parts(:, 2))
+      roots = cmplx(roots_in_parts(:, 1), roots_in_parts(:, 2))
+      
+      do rdx=1,degree
+        residual = 0.0
+        do term=0,degree
+          residual = residual + coeffs(3-term) * roots(rdx) ** term
+        enddo
+
+        real_residual = abs(residual)
+        
+        @assertEqual(0.0d0, real_residual, tolerance=RESIDUAL_TOLERANCE / abs(coeffs(0)))
+      enddo
+    enddo
+
+  end subroutine test_poly_roots_qbc
 
   @Test
   subroutine test_bisection()
