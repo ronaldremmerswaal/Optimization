@@ -31,9 +31,10 @@ contains
     it = 0
     ! Find bracket using Newton
     do while (dfun_val * dfun_prev > 0 .and. it <= maxIt)
-      x_val = x_prev - fun(x_val) / dfun_prev
-
+      x_prev = x_val
       dfun_prev = dfun_val
+
+      x_val = x_prev - fun(x_val) / dfun_prev
       dfun_val = dfun(x_val)
       
       it = it + 1
