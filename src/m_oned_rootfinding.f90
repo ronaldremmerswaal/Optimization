@@ -1,20 +1,22 @@
 module m_oned_rootfinding
   
 contains
-  real*8 function brent_min(fun, dfun, x0, xTol, maxIt, verbose) result(x_val)
+  real*8 function brent_min(fun, dfun, x0, xTol, maxIt, verbose, maxStep) result(x_val)
     implicit none
 
     real*8, external      :: fun, dfun
     real*8, intent(in)    :: x0, xTol
     integer, intent(in)   :: maxIt
     logical, intent(in), optional :: verbose
+    real*8, intent(in), optional :: maxStep
     
     ! Local variables
-    real*8                :: dfun_val, dfun_prev, x_prev
+    real*8                :: dfun_val, dfun_prev, x_prev, step, maxStep_
     integer               :: it
     logical               :: verbose_, converged
 
     verbose_ = merge(verbose, .false., present(verbose))
+    maxStep_ = merge(maxStep, 1D100, present(maxStep))
 
     x_prev = x0
     x_val = x0
@@ -35,15 +37,19 @@ contains
       x_prev = x_val
       dfun_prev = dfun_val
 
-      x_val = x_prev - 2 * fun(x_prev) / dfun_prev
+      step = - 2 * fun(x_prev) / dfun_prev
+      if (present(maxStep) .and. abs(step) > maxStep_) then
+        step = sign(maxStep, step)
+      endif
+      x_val = x_prev + step
       dfun_val = dfun(x_val)
       
       it = it + 1
 
       if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', it, '   ', &
-      x_val, '   ', dfun_val, '  ', abs(x_val - x_prev)
+      x_val, '   ', dfun_val, '  ', abs(step)
 
-      converged = abs(x_val - x_prev) < xTol
+      converged = abs(step) < xTol
       if (converged) exit
     enddo
 
