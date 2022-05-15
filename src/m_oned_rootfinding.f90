@@ -12,7 +12,7 @@ contains
     ! Local variables
     real*8                :: dfun_val, dfun_prev, x_prev
     integer               :: it
-    logical               :: verbose_
+    logical               :: verbose_, converged
 
     verbose_ = merge(verbose, .false., present(verbose))
 
@@ -28,6 +28,7 @@ contains
       write(*,'(A)') '      Iter       Sol        DFunVal    Err. est.'
     endif
 
+    converged = .false.
     it = 0
     ! Find bracket using Newton
     do while (dfun_val * dfun_prev > 0 .and. it <= maxIt)
@@ -42,12 +43,16 @@ contains
       if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', it, '   ', &
       x_val, '   ', dfun_val, '  ', abs(x_val - x_prev)
 
+      converged = abs(x_val - x_prev) < xTol
+      if (converged) exit
     enddo
 
-    if (verbose_) write(*,'(A,I4)') '               Continuing in brent...'
+    if (.not. converged) then
+      if (verbose_) write(*,'(A,I4)') '               Continuing in brent...'
 
-    ! Then apply Brent to derivative
-    x_val = brent(dfun, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev, verbose = verbose)
+      ! Then apply Brent to derivative
+      x_val = brent(dfun, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev, verbose = verbose)
+    endif
   end function
 
   real*8 function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn, verbose) result(xsol)
