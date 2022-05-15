@@ -1,12 +1,13 @@
 module m_oned_rootfinding
   
 contains
-  real*8 function brent_min(fun, dfun, x0, xTol, maxIt) result(x_val)
+  real*8 function brent_min(fun, dfun, x0, xTol, maxIt, verbose) result(x_val)
     implicit none
 
     real*8, external      :: fun, dfun
     real*8, intent(in)    :: x0, xTol
     integer, intent(in)   :: maxIt
+    logical, intent(in), optional :: verbose
     
     ! Local variables
     real*8                :: dfun_val, dfun_prev, x_prev
@@ -29,21 +30,25 @@ contains
     enddo
 
     ! Then apply Brent to derivative
-    x_val = brent(dfun, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev)
+    x_val = brent(dfun, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev, verbose = verbose)
   end function
 
-  real*8 function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn) result(xsol)
+  real*8 function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn, verbose) result(xsol)
   implicit none
 
   real*8, external        :: fun
   real*8, intent(in)      :: xaIn, xbIn, xTol
   integer, intent(in)   :: maxIt
   real*8, intent(in), optional :: faIn, fbIn
+  logical, intent(in), optional :: verbose
 
   ! Local variables
-  real*8                  :: xa, xb, fa, fb, fc, xc, xd, xe, xm, p, q, r, s
-  real*8                  :: toler
+  real*8                :: xa, xb, fa, fb, fc, xc, xd, xe, xm, p, q, r, s
+  real*8                :: toler
   integer               :: iter, flag
+  logical               :: verbose_
+
+  verbose_ = merge(verbose, .false., present(verbose))
 
   xa = xaIn
   xb = xbIn
@@ -69,6 +74,13 @@ contains
     xsol = 0.0
     print*, 'Error: brent only possible if function values switch sign'
     return
+  endif
+
+  if (verbose_) then
+    write(*,'(A)') '/---------------------------------------------------\'
+    write(*,'(A,I4)') '               Starting Brent search'
+    write(*,'(A)') ''
+    write(*,'(A)') '      Iter       Sol         FunVal    Err. est.'
   endif
 
   iter = 2
@@ -141,14 +153,19 @@ contains
       fb = fun(xb)
       iter = iter + 1
 
-  end do
+      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', iter, '   ', &
+          xb, '   ', fb, '  ', abs(xc - xb)
 
-  if (flag == 0) then
-    xsol = xb
-  else
-    ! We guarantee convergence
-    xsol = bisection(fun, xb, xc, xTol, maxIt, fb, fc)
-  endif
+    end do
+
+    if (verbose_) write(*,'(A)') '\---------------------------------------------------/'
+
+    if (flag == 0) then
+      xsol = xb
+    else
+      ! We guarantee convergence
+      xsol = bisection(fun, xb, xc, xTol, maxIt, fb, fc)
+    endif
 
   end function
 

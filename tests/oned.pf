@@ -170,9 +170,7 @@ contains
 
     it = 0
     xExact = 4 * atan(1.0d0)
-    x = brent_min(fun, dfun, xExact + 1E-1, X_TOLERANCE, MAX_IT)
-
-    print*, 'iterations = ', it
+    x = brent_min(fun, dfun, xExact + 1E-1, X_TOLERANCE, MAX_IT, verbose=.true.)
 
     @assertEqual(xExact, x, X_TOLERANCE)
 
@@ -182,7 +180,7 @@ contains
       implicit none
 
       real*8, intent(in)      :: x
-      y = 1 + (x-xExact)**2
+      y = 2 + cos(x)
 
     end
       
@@ -191,7 +189,7 @@ contains
       implicit none
       
       real*8, intent(in)      :: x
-      dy = 2*(x - xExact)
+      dy = sin(x)
       it = it + 1
     end
     

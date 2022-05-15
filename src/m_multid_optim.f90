@@ -69,7 +69,7 @@ contains
       write(*,'(A)') '/------------------------------------------------------------------\'
       write(*,'(A,I4)') '  Starting L-BFGS optimization with N = ', nvars
       write(*,'(A)') ''
-      write(*,'(A)') '      Iter   FEvals      FunVal    norm(G)   err. est.   Stepsize'
+      write(*,'(A)') '      Iter   FEvals      FunVal    norm(G)   Err. est.   Stepsize'
       write(*,'(A,I8,A,I6,A,1PD9.3,A,1PD9.3,A,1PD9.3,A,1PD9.3)') '  ', it, '   ', nr_fevals,& 
         '   ', fun_val, '   ', normGrad, '  ', errEst, '  ', 0.0
     endif
