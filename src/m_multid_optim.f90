@@ -1,17 +1,16 @@
 module m_multid_optim
   use m_linesearch
 
-  integer, parameter :: LS_ARMIJO_BACKTRACKING = 0, LS_MORE_THUENTE = 1, LS_NONE = -1
   integer, parameter :: MAX_NR_LBFGS_DIRECTIONS = 5, MAX_NR_BROYDEN_DIRECTIONS = 10
 
   type optimOpts
-    integer               :: maxFEval       ! Maximum nr function evaluations
-    real*8                :: fTol           ! Stop if f(x) < fTol (f is signed!)
-    real*8                :: gTol           ! Stop if |g(x)|_2 < gTol
-    real*8                :: errTol         ! Stop if |x - x^*|_2 < errTol (use an error estimate)
-    real*8                :: hStep          ! Step size used for FD approximation of gradient (depends on scaling of f, x)
-    integer               :: fdOrder        ! 1/2
-    logical               :: verbose        ! Print info
+    integer               :: maxFEval = 50       ! Maximum nr function evaluations
+    real*8                :: fTol     = 0.0      ! Stop if f(x) < fTol (f is signed!)
+    real*8                :: gTol     = 1E-12    ! Stop if |g(x)|_2 < gTol
+    real*8                :: errTol   = 1E-12    ! Stop if |x - x^*|_2 < errTol (use an error estimate)
+    real*8                :: hStep    = 1E-7     ! Step size used for FD approximation of gradient (depends on scaling of f, x)
+    integer               :: fdOrder  = 2        ! 1/2
+    logical               :: verbose  = .false.  ! Print info
   end type
 
   type optimInfo
@@ -37,9 +36,7 @@ contains
     type(optimInfo), intent(out):: info
 
     ! Local variables
-    ! NB we take a relatively small curvatureCondition since line search iterations are cheaper than BFGS (especially with a FD approximate directional derivative)
-    type(lsOpts), parameter :: ls_opts_default = lsOpts(type=LS_MORE_THUENTE, decreaseCondition = 1E-3, & 
-      curvatureCondition = 5E-1, stepFactor = 5E-1, xTol = 1E-16, stpMin = 1E-16, stpMax = 1E+16)
+    type(lsOpts), parameter :: ls_opts_default = lsOpts()
     type(lsOpts)          :: ls_opts_
     integer               :: it, nr_fevals, nvars, ls_info, nr_directions, last_idx, ls_nr_fevals
     integer               :: actual_max_nr_directions

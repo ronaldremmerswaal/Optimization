@@ -1,6 +1,7 @@
 module m_linesearch
 
-
+  integer, parameter :: LS_ARMIJO_BACKTRACKING = 0, LS_MORE_THUENTE = 1, LS_NONE = -1
+  
   integer, parameter :: MT_BADINPUT = 0
   integer, parameter :: MT_GOOD = 1
   integer, parameter :: MT_INTERVAL = 2
@@ -12,15 +13,14 @@ module m_linesearch
 
 
   type lsOpts
-    integer               :: type
-    real*8                  :: decreaseCondition
-    real*8                  :: curvatureCondition
-    real*8                  :: stepFactor
-    real*8                  :: xTol
-    real*8                  :: stpMin
-    real*8                  :: stpMax
+    integer               :: type               = LS_MORE_THUENTE
+    real*8                :: decreaseCondition  = 1E-2
+    real*8                :: curvatureCondition = 5E-1
+    real*8                :: stepFactor         = 6E-1
+    real*8                :: xTol               = 1E-16
+    real*8                :: stpMin             = 1E-16
+    real*8                :: stpMax             = 1E+16
   end type
-
 
 contains
   subroutine more_thuente(fun,n,x,f,dginit,s,stp,opts,maxfev,info)

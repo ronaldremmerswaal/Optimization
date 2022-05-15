@@ -20,9 +20,9 @@ contains
     type(lsOpts)          :: ls_opts
 
     opts = optimOpts(maxFEval = 1E4, fTol = -1.0d0, gTol = RESIDUAL_TOLERANCE, errTol = ERROR_TOLERANCE,&
-      hStep = 1E-6, fdOrder = 2, verbose = .false.)
+      hStep = 1E-6)
     ls_opts = lsOpts(type=LS_MORE_THUENTE, decreaseCondition = 1E-1, curvatureCondition = 1E-3, &
-      stepFactor = 5E-1, xTol = 1E-16, stpMin = 1E-16, stpMax = 1E+16)
+      stepFactor = 5E-1)
 
     do i=1,N,2
       x0(i) = -1.2
