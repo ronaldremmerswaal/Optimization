@@ -122,7 +122,7 @@ contains
 
       ! Convergence test and possible exit
       xm = 0.5*(xc - xb)
-      toler = 2.0*xTol*max(abs(xb),1.0)
+      toler = xTol
       if ((abs(xm) <= toler) .or. (fb == 0.0)) then
           flag = 0
           exit
