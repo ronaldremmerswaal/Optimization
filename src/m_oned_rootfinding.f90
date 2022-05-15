@@ -12,11 +12,21 @@ contains
     ! Local variables
     real*8                :: dfun_val, dfun_prev, x_prev
     integer               :: it
+    logical               :: verbose_
+
+    verbose_ = merge(verbose, .false., present(verbose))
 
     x_prev = x0
     x_val = x0
     dfun_prev = dfun(x0)
     dfun_val = dfun_prev
+
+    if (verbose_) then
+      write(*,'(A)') '/---------------------------------------------------\'
+      write(*,'(A,I4)') '           Starting Brent min search'
+      write(*,'(A)') ''
+      write(*,'(A)') '      Iter       Sol        DFunVal    Err. est.'
+    endif
 
     it = 0
     ! Find bracket using Newton
@@ -25,9 +35,15 @@ contains
 
       dfun_prev = dfun_val
       dfun_val = dfun(x_val)
-
+      
       it = it + 1
+
+      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', it, '   ', &
+      x_val, '   ', dfun_val, '  ', abs(x_val - x_prev)
+
     enddo
+
+    if (verbose_) write(*,'(A,I4)') '               Continuing in brent...'
 
     ! Then apply Brent to derivative
     x_val = brent(dfun, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev, verbose = verbose)
