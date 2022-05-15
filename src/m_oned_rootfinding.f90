@@ -1,6 +1,37 @@
 module m_oned_rootfinding
   
 contains
+  real*8 function brent_min(fun, dfun, x0, xTol, maxIt) result(x_val)
+    implicit none
+
+    real*8, external      :: fun, dfun
+    real*8, intent(in)    :: x0, xTol
+    integer, intent(in)   :: maxIt
+    
+    ! Local variables
+    real*8                :: dfun_val, dfun_prev, x_prev
+    integer               :: it
+
+    x_prev = x0
+    x_val = x0
+    dfun_prev = dfun(x0)
+    dfun_val = dfun_prev
+
+    it = 0
+    ! Find bracket using Newton
+    do while (dfun_val * dfun_prev > 0 .and. it <= maxIt)
+      x_val = x_prev - fun(x_val) / dfun_prev
+
+      dfun_prev = dfun_val
+      dfun_val = dfun(x_val)
+
+      it = it + 1
+    enddo
+
+    ! Then apply Brent to derivative
+    x_val = brent(dfun, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev)
+  end function
+
   real*8 function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn) result(xsol)
   implicit none
 
