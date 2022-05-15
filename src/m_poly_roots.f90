@@ -30,7 +30,7 @@ contains
 
     ! Local variables
     real*8                    :: a(1:4, 0:4), im, ii
-    integer                 :: degree, i
+    integer                   :: degree, i
 
     ! Degree must be >= 2 and <= 4
     degree = 4
