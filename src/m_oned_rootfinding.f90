@@ -34,7 +34,7 @@ contains
       x_prev = x_val
       dfun_prev = dfun_val
 
-      x_val = x_prev - fun(x_val) / dfun_prev
+      x_val = x_prev - fun(x_prev) / dfun_prev
       dfun_val = dfun(x_val)
       
       it = it + 1
