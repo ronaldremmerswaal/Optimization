@@ -128,6 +128,9 @@ contains
 
       ! Convergence test and possible exit
       xm = 0.5*(xc - xb)
+      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', iter, '   ', &
+        xc, '   ', fc, '  ', abs(xm)
+
       toler = xTol
       if ((abs(xm) <= toler) .or. (fb == 0.0)) then
           flag = 0
@@ -180,9 +183,6 @@ contains
       endif
       fb = fun(xb)
       iter = iter + 1
-
-      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', iter, '   ', &
-          xb, '   ', fb, '  ', abs(xc - xb)
 
     end do
 
