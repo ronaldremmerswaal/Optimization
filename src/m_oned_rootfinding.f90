@@ -54,6 +54,7 @@ contains
     enddo
 
     if (.not. converged) then
+      if (dfun_val * dfun_prev > 0) return
       if (verbose_) write(*,'(A,I4)') '               Continuing in brent...'
 
       ! Then apply Brent to derivative
