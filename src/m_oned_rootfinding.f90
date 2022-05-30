@@ -1,7 +1,7 @@
 module m_oned_rootfinding
   
 contains
-  real*8 function brent_min(fun, dfun, x0, xTol, maxIt, verbose, maxStep) result(x_val)
+  real*8 function brent_min(dfun, x0, xTol, maxIt, verbose, maxStep) result(x_val)
     implicit none
 
     real*8, external      :: fun, dfun
@@ -11,7 +11,7 @@ contains
     real*8, intent(in), optional :: maxStep
     
     ! Local variables
-    real*8                :: dfun_val, dfun_prev, x_prev, step, maxStep_
+    real*8                :: dfun_val, dfun_prev, x_prev, step, maxStep_, fun_val
     integer               :: it
     logical               :: verbose_, converged
 
@@ -20,8 +20,8 @@ contains
 
     x_prev = x0
     x_val = x0
-    dfun_prev = dfun(x0)
-    dfun_val = dfun_prev
+    dfun_val = dfun(x_val, fun_val)
+    dfun_prev = dfun_val
 
     if (verbose_) then
       write(*,'(A)') '/---------------------------------------------------\'
@@ -37,12 +37,12 @@ contains
       x_prev = x_val
       dfun_prev = dfun_val
 
-      step = - 2 * fun(x_prev) / dfun_prev
+      step = - 2 * fun_val / dfun_val
       if (present(maxStep) .and. abs(step) > maxStep_) then
         step = sign(maxStep, step)
       endif
       x_val = x_prev + step
-      dfun_val = dfun(x_val)
+      dfun_val = dfun(x_val, fun_val)
       
       it = it + 1
 
