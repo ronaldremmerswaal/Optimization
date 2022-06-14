@@ -21,6 +21,7 @@ contains
     x_prev = x0
     x_val = x0
     dfun_val = dfun(x_val, fun_val)
+    if (dfun_val==0) return
     dfun_prev = dfun_val
 
     if (verbose_) then
