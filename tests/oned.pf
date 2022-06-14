@@ -1,6 +1,6 @@
 module oned
 
-  real*8, parameter         :: RESIDUAL_TOLERANCE = 1.1E-12
+  real*8, parameter         :: RESIDUAL_TOLERANCE = 3E-12
   real*8, parameter         :: X_TOLERANCE = 1E-14
 contains
   
@@ -14,7 +14,7 @@ contains
     real*8                  :: coeffs(0:4), roots_in_parts(4, 2), real_residual
     complex*16              :: roots(4), residual
     integer                 :: degree, term, rdx, repeat
-    integer                 :: NR_REPETITIONS = 1E2, SEED(33)
+    integer                 :: NR_REPETITIONS = 1E4, SEED(33)
 
     SEED = 1
     call random_seed(put=SEED)
@@ -58,7 +58,7 @@ contains
     real*8                  :: coeffs(0:3), roots_in_parts(3, 2), real_residual
     complex*16              :: roots(3), residual
     integer                 :: degree, term, rdx, repeat
-    integer                 :: NR_REPETITIONS = 1E2, SEED(33)
+    integer                 :: NR_REPETITIONS = 1E4, SEED(33)
 
     SEED = 1
     call random_seed(put=SEED)
