@@ -1,6 +1,6 @@
 module oned
 
-  real*8, parameter         :: RESIDUAL_TOLERANCE = 1E-12
+  real*8, parameter         :: RESIDUAL_TOLERANCE = 1.1E-12
   real*8, parameter         :: X_TOLERANCE = 1E-14
 contains
   
