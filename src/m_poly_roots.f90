@@ -250,43 +250,54 @@ contains
     real*8, intent(in)      :: coeffs(3)
     real*8, intent(out)     :: roots(2), imag
 
+    call polynomial_roots_deg2_sub(coeffs(1), coeffs(2), coeffs(3), roots(1), roots(2), imag)
+    
+  end subroutine
+
+  pure subroutine polynomial_roots_deg2_sub(A, B, C, x1, x2, imag)
+    implicit none
+
+    real*8, intent(in)      :: A, B, C
+    real*8, intent(out)     :: x1, x2, imag
+
     ! Local variables
-    real*8                  :: D, scaled(2), maxSqrt
+    real*8                  :: D, Bscaled, Cscaled, maxSqrt
 
     imag = 0.
-    if (coeffs(1) == 0) then
-      if (coeffs(2) == 0) then
-        roots = d_qnan
+    if (A == 0) then
+      if (B == 0) then
+        x1 = d_qnan
+        x2 = d_qnan
       else
-        roots(1) = -coeffs(3) / coeffs(2)
-        roots(2) = roots(1)
+        x1 = -C / B
+        x2 = x1
       endif
-    elseif (coeffs(3) == 0) then
-      roots(1) = -coeffs(2) / coeffs(1)
-      roots(2) = 0.0
+    elseif (C == 0) then
+      x1 = -B / A
+      x2 = 0.0
     else
       ! Citarduaq's formula is used to allow for small c(1) in a numerically stable way
-      scaled = coeffs(2:3) / coeffs(1)
+      Bscaled = B / A
+      Cscaled = C / A
 
-      maxSqrt = sqrt(huge(scaled(1)))
-      if (scaled(1) > maxSqrt .or. scaled(1) < -maxSqrt) then
-        ! scaled(1)^2 would overflow, so we let √D ≈ |scaled(1)| instead
-        roots(1) = -scaled(2) / scaled(1)
-        roots(2) = scaled(2) / roots(1)
+      maxSqrt = sqrt(huge(Bscaled))
+      if (Bscaled > maxSqrt .or. Bscaled < -maxSqrt) then
+        ! Bscaled^2 would overflow, so we let √D ≈ |Bscaled| instead
+        x1 = -Cscaled / Bscaled
+        x2 = Cscaled / x1
       else
-        D = scaled(1)**2.0 - 4 * scaled(2)
+        D = Bscaled**2 - 4 * Cscaled
 
         if (D <= 0) then
           if (D < 0) imag = sqrt(-D) / 2
-          roots = -scaled(1) / 2
+          x1 = -Bscaled / 2
+          x2 = x1
         else
-          roots(1) = -2 * scaled(2) / (scaled(1) + sign(sqrt(D), scaled(1)))
-          roots(2) = scaled(2) / roots(1)
+          x1 = -2 * Cscaled / (Bscaled + sign(sqrt(D), Bscaled))
+          x2 = Cscaled / x1
         endif
       endif
-
     endif
-    if (.not. isnan(roots(1)) .and. roots(1) > roots(2)) roots = [roots(2), roots(1)]
   end subroutine
 
   pure subroutine real_roots_2(roots, coeffs, residual)
