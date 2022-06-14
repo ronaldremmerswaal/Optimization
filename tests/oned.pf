@@ -169,23 +169,23 @@ contains
     integer                 :: it
 
     it = 0
-    xExact = 4 * atan(1.0d0)
-    x = brent_min(dfun, xExact + 1E-1, X_TOLERANCE, MAX_IT, verbose=.true.)
+    xExact = 4 * datan(1.0d0)
+    x = brent_min(dfun, 4D0, X_TOLERANCE, MAX_IT, verbose=.true., maxStep=0.25D0)
 
     @assertEqual(xExact, x, X_TOLERANCE)
-
+    @assertLessThan(it, MAX_IT)
   contains
 
-    real*8 function dfun(x, y) result(dy)
+    real*8 function dfun(xin, y) result(dy)
     
       implicit none
       
-      real*8, intent(in)      :: x
+      real*8, intent(in)      :: xin
       real*8, intent(out), optional :: y
 
-      if (present(y)) y = 2 + cos(x)
+      if (present(y)) y = 2 + dcos(xin)
 
-      dy = sin(x)
+      dy = -dsin(xin)
       it = it + 1
     end
     

@@ -31,9 +31,9 @@ contains
     endif
 
     converged = .false.
-    it = 0
+    it = 1
     ! Find bracket using Newton
-    do while (dfun_val * dfun_prev > 0 .and. it <= maxIt)
+    do while (dfun_val * dfun_prev > 0 .and. it < maxIt)
       x_prev = x_val
       dfun_prev = dfun_val
 
@@ -79,27 +79,31 @@ contains
 
   verbose_ = merge(verbose, .false., present(verbose))
 
+  iter = 0
+
   xa = xaIn
   xb = xbIn
   if (present(faIn)) then
     fa = faIn
   else
     fa = fun(xa)
+    iter = iter + 1
   endif
   if (present(fbIn)) then
     fb = fbIn
   else
     fb = fun(xb)
+    iter = iter + 1
   endif
 
-  if (fa == 0.0) then
+  if (fa == 0) then
     xsol = xa
     return
-  elseif (fb == 0.0) then
+  elseif (fb == 0) then
     xsol = xb
     return
-  elseif (fa * fb > 0.0) then
-    xsol = 0.0
+  elseif (fa * fb > 0) then
+    xsol = 0
     print*, 'Error: brent only possible if function values switch sign'
     return
   endif
@@ -114,13 +118,12 @@ contains
   xc = xa;  fc = fa
   xd = xb - xa;  xe = xd
 
-  iter = 2
   flag = 0
-  do while (fb /= 0.0 .and. xa /= xb)
+  do while (fb /= 0 .and. xa /= xb)
 
       ! Ensure that b is the best result so far, a is the previous
       ! value of b, and c is on the opposite side of the zero from b.
-      if (fb * fc > 0.0) then
+      if (fb * fc > 0) then
           xc = xa;  fc = fa
           xd = xb - xa;  xe = xd
       endif
@@ -152,22 +155,22 @@ contains
           s = fb/fa;
           if (xa == xc) then
             ! Linear interpolation
-            p = 2.0*xm*s
-            q = 1.0 - s
+            p = 2*xm*s
+            q = 1 - s
           else
             ! Inverse quadratic interpolation
             q = fa/fc
             r = fb/fc
-            p = s*(2.0*xm*q*(q - r) - (xb - xa)*(r - 1.0))
-            q = (q - 1.0)*(r - 1.0)*(s - 1.0)
+            p = s*(2*xm*q*(q - r) - (xb - xa)*(r - 1))
+            q = (q - 1)*(r - 1)*(s - 1)
           endif
-          if (p > 0.0) then
+          if (p > 0) then
             q = -q
           else
             p = -p
           endif
           ! Is interpolated point acceptable
-          if ((2.0*p < 3.0*xm*q - abs(toler*q)) .and. (p < abs(0.5*xe*q))) then
+          if ((2*p < 3*xm*q - abs(toler*q)) .and. (p < abs(0.5*xe*q))) then
             xe = xd;  xd = p/q
           else
             xd = xm;  xe = xm
@@ -191,12 +194,7 @@ contains
 
     if (verbose_) write(*,'(A)') '\---------------------------------------------------/'
 
-    if (flag == 0) then
-      xsol = xb
-    else
-      ! We guarantee convergence
-      xsol = bisection(fun, xb, xc, xTol, maxIt, fb, fc)
-    endif
+    xsol = xb
 
   end function
 
