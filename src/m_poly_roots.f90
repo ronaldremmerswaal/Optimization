@@ -87,9 +87,6 @@ contains
     real*8, intent(in)      :: A(1:4,0:4)
     real*8, intent(inout)   :: r(1:4), im
 
-    ! Local variables
-    real*8                  :: D, maxSqrt
-
     call polynomial_roots_deg2([1.0d0, A(2,1), A(2,0)], r(1:2), im)
     if (r(1) < r(2)) r(1:2) = [r(2), r(1)]
   end subroutine

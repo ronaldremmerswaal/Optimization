@@ -172,13 +172,13 @@ contains
 !     Jorge J. More', David J. Thuente
 !
 !     &*********
-  integer infoc,j,nfev
+  integer infoc,nfev
   logical brackt,stage1
   real*8 dg,dgm,dgtest,dgx,dgxm,dgy,dgym,   &
   &       finit,ftest1,fm,fx,fxm,fy,fym,p5,p66,stx,sty,       &
   &       stmin,stmax,width,width1,xtrapf
-  real*8              :: x0(n), xdir(n)
-  real*8                :: ftol,gtol,xtol,stpmin,stpmax,hstep
+  real*8              :: x0(n)
+  real*8                :: ftol,gtol,xtol,stpmin,stpmax
 
   data p5,p66,xtrapf/0.5,0.66,4.0/
   info = 0

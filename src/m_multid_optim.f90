@@ -54,9 +54,10 @@ contains
     actual_max_nr_directions = min(MAX_NR_LBFGS_DIRECTIONS, nvars)
 
     fun_val = evaluate_fun_and_grad(grad, x)
+    prev_fun_val = fun_val
 
     normGrad = norm2(grad)
-    errEst = max(1.0, abs(opts%errTol) * 2.0)
+    errEst = max(1.0, abs(opts%errTol) * 2)
 
     if (present(ls_opts)) then
       ls_opts_ = ls_opts
@@ -230,11 +231,11 @@ contains
       real*8, intent(out)     :: p(nvars)
       real*8, intent(in)      :: rhs(nvars), Y(nvars, MAX_NR_LBFGS_DIRECTIONS), S(nvars, MAX_NR_LBFGS_DIRECTIONS)
       real*8, intent(in)      :: rho(MAX_NR_LBFGS_DIRECTIONS), diag
-      integer, intent(in)   :: nr_directions, last_idx, nvars
+      integer, intent(in)     :: nr_directions, last_idx, nvars
 
       ! Local variables
-      real                  :: alpha(MAX_NR_LBFGS_DIRECTIONS), beta
-      integer               :: k, idx
+      real*8                  :: alpha(MAX_NR_LBFGS_DIRECTIONS), beta
+      integer                 :: k, idx
 
       p = rhs
       if (nr_directions == 0) return

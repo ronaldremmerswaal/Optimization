@@ -91,7 +91,6 @@ contains
   else
     fb = fun(xb)
   endif
-  fc = fb
 
   if (fa == 0.0) then
     xsol = xa
@@ -111,6 +110,9 @@ contains
     write(*,'(A)') ''
     write(*,'(A)') '      Iter       Sol         FunVal    Err. est.'
   endif
+
+  xc = xa;  fc = fa
+  xd = xb - xa;  xe = xd
 
   iter = 2
   flag = 0
