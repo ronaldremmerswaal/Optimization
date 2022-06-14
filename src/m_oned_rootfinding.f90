@@ -1,10 +1,19 @@
 module m_oned_rootfinding
-  
+  abstract interface
+    real*8 function der_optim_fun(x, fun)
+      real*8, intent(in)  :: x
+      real*8, intent(out), optional :: fun
+    end function
+
+    real*8 function optim_fun(x)
+      real*8, intent(in)  :: x
+    end function
+  end interface
 contains
   real*8 function brent_min(dfun, x0, xTol, maxIt, verbose, maxStep) result(x_val)
     implicit none
 
-    real*8, external      :: fun, dfun
+    procedure(der_optim_fun) :: dfun
     real*8, intent(in)    :: x0, xTol
     integer, intent(in)   :: maxIt
     logical, intent(in), optional :: verbose
@@ -59,68 +68,73 @@ contains
       if (verbose_) write(*,'(A,I4)') '               Continuing in brent...'
 
       ! Then apply Brent to derivative
-      x_val = brent(dfun, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev, verbose = verbose)
+      x_val = brent(optim_wrapper, x_val, x_prev, xTol, maxIt - it, dfun_val, dfun_prev, verbose = verbose)
     endif
+  contains
+    real*8 function optim_wrapper(x) result(ans)
+      real*8, intent(in) :: x
+      ans = dfun(x)
+    end function
   end function
 
   real*8 function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn, verbose) result(xsol)
-  implicit none
+    implicit none
 
-  real*8, external        :: fun
-  real*8, intent(in)      :: xaIn, xbIn, xTol
-  integer, intent(in)   :: maxIt
-  real*8, intent(in), optional :: faIn, fbIn
-  logical, intent(in), optional :: verbose
+    procedure(optim_fun) :: fun
+    real*8, intent(in)      :: xaIn, xbIn, xTol
+    integer, intent(in)   :: maxIt
+    real*8, intent(in), optional :: faIn, fbIn
+    logical, intent(in), optional :: verbose
 
-  ! Local variables
-  real*8                :: xa, xb, fa, fb, fc, xc, xd, xe, xm, p, q, r, s
-  real*8                :: toler
-  integer               :: iter, flag
-  logical               :: verbose_
+    ! Local variables
+    real*8                :: xa, xb, fa, fb, fc, xc, xd, xe, xm, p, q, r, s
+    real*8                :: toler
+    integer               :: iter, flag
+    logical               :: verbose_
 
-  verbose_ = merge(verbose, .false., present(verbose))
+    verbose_ = merge(verbose, .false., present(verbose))
 
-  iter = 0
+    iter = 0
 
-  xa = xaIn
-  xb = xbIn
-  if (present(faIn)) then
-    fa = faIn
-  else
-    fa = fun(xa)
-    iter = iter + 1
-  endif
-  if (present(fbIn)) then
-    fb = fbIn
-  else
-    fb = fun(xb)
-    iter = iter + 1
-  endif
+    xa = xaIn
+    xb = xbIn
+    if (present(faIn)) then
+      fa = faIn
+    else
+      fa = fun(xa)
+      iter = iter + 1
+    endif
+    if (present(fbIn)) then
+      fb = fbIn
+    else
+      fb = fun(xb)
+      iter = iter + 1
+    endif
 
-  if (fa == 0) then
-    xsol = xa
-    return
-  elseif (fb == 0) then
-    xsol = xb
-    return
-  elseif (fa * fb > 0) then
-    xsol = 0
-    print*, 'Error: brent only possible if function values switch sign'
-    return
-  endif
+    if (fa == 0) then
+      xsol = xa
+      return
+    elseif (fb == 0) then
+      xsol = xb
+      return
+    elseif (fa * fb > 0) then
+      xsol = 0
+      print*, 'Error: brent only possible if function values switch sign'
+      return
+    endif
 
-  if (verbose_) then
-    write(*,'(A)') '/---------------------------------------------------\'
-    write(*,'(A,I4)') '               Starting Brent search'
-    write(*,'(A)') ''
-    write(*,'(A)') '      Iter       Sol         FunVal    Err. est.'
-  endif
+    if (verbose_) then
+      write(*,'(A)') '/---------------------------------------------------\'
+      write(*,'(A,I4)') '               Starting Brent search'
+      write(*,'(A)') ''
+      write(*,'(A)') '      Iter       Sol         FunVal    Err. est.'
+    endif
 
-  xc = xa;  fc = fa
-  xd = xb - xa;  xe = xd
+    xc = xa;  fc = fa
+    xd = xb - xa;  xe = xd
 
-  flag = 0
-  do while (fb /= 0 .and. xa /= xb)
+    flag = 0
+    do while (fb /= 0 .and. xa /= xb)
 
       ! Ensure that b is the best result so far, a is the previous
       ! value of b, and c is on the opposite side of the zero from b.
@@ -202,8 +216,8 @@ contains
   real*8 function bisection(fun, xLeft, xRight, xTol, maxIt, fLeft, fRight) result(x)
   implicit none
 
-  real*8, external        :: fun
-  real*8, intent(in)      :: xLeft, xRight, xTol
+  procedure(optim_fun)  :: fun
+  real*8, intent(in)    :: xLeft, xRight, xTol
   integer, intent(in)   :: maxIt
   real*8, optional, intent(in) :: fLeft, fRight
 

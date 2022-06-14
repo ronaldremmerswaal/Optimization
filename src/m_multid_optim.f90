@@ -23,7 +23,16 @@ module m_multid_optim
     logical               :: success
   end type
 
+  abstract interface
+    real*8 function der_optim_fun(g, x)
+      real*8, intent(in)  :: x(:)
+      real*8, intent(out) :: g(:)
+    end function
 
+    real*8 function optim_fun(x)
+      real*8, intent(in)  :: x(:)
+    end function
+  end interface
 contains
   subroutine optimize(x, fun, opts, info, fun_and_grad, ls_opts)
     implicit none

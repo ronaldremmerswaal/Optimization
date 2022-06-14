@@ -170,7 +170,7 @@ contains
 
     it = 0
     xExact = 4 * datan(1.0d0)
-    x = brent_min(dfun, 4D0, X_TOLERANCE, MAX_IT, verbose=.true., maxStep=0.25D0)
+    x = brent_min(dfun, 4D0, X_TOLERANCE, MAX_IT, verbose=.false., maxStep=0.25D0)
 
     @assertEqual(xExact, x, X_TOLERANCE)
     @assertLessThan(it, MAX_IT)
