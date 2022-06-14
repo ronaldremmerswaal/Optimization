@@ -85,7 +85,7 @@ contains
     implicit none
 
     real*8, intent(in)      :: A(1:4,0:4)
-    real*8, intent(inout)   :: r(1:4), im
+    real*8, intent(out)   :: r(1:4), im
 
     call polynomial_roots_deg2([1.0d0, A(2,1), A(2,0)], r(1:2), im)
     if (r(1) < r(2)) r(1:2) = [r(2), r(1)]
@@ -151,11 +151,17 @@ contains
 
   contains
 
-    pure real*8 function eval_cubic(x) result(y)
+    pure real*8 function eval_cubic(x) result(Q)
       implicit none
 
-      real*8, intent(in)  :: x
-      y = x**3 + A(3,2) * x**2 + A(3,1) * x + A(3,0)
+      real*8, intent(in)    :: x
+
+      ! Local variables
+      real*8                :: b1, c2
+
+      b1 = x + A(3,2)
+      c2 = b1 * x + A(3,1)
+      Q = c2 * x + A(3,0)
     end function
 
 
@@ -309,30 +315,50 @@ contains
   !    University of California
   !    Berkeley CA 94720
   !    Nov. 10, 1986
-  pure subroutine polynomial_roots_deg3(coeffs, roots_real, roots_imag)
+  pure subroutine polynomial_roots_deg3(coeffs, roots_real, roots_imag, only_real)
     implicit none
 
-    real*8, intent(in)      :: coeffs(4)
-    real*8, intent(out)     :: roots_real(3), roots_imag(3)
+    real*8, intent(in)    :: coeffs(4)
+    real*8, intent(out)   :: roots_real(3), roots_imag(3)
+    logical, intent(in), optional :: only_real
 
     ! Local variables
-    real*8                  :: A, B, C, D, x, x1, x2, y
-    real*8                  :: Q, Qprime, b1, c2, t, r, s, x0
-    real*8, parameter       :: ONE_PLUS_EPS = 1. + 1E-12
+    real*8                :: x, x1, x2, y
+
+    call polynomial_roots_deg3_sub(coeffs(1), coeffs(2), coeffs(3), coeffs(4), x, x1, x2, y, &
+      merge(only_real, .false., present(only_real)))
+
+    roots_real(1) = x
+    roots_imag(1) = 0.
+    roots_real(2) = x1
+    roots_imag(2) = y
+    roots_real(3) = x2
+    roots_imag(3) = -y
+  end
+
+  pure subroutine polynomial_roots_deg3_sub(A, B, C, D, x, x1, x2, y, only_real)
+    implicit none
+
+    real*8, intent(in)    :: A, B, C, D
+    real*8, intent(out)   :: x, x1, x2, y
+    logical, intent(in), optional :: only_real
+
+    ! Local variables
+    real*8                :: Q, Qprime, b1, c2, t, r, s, x0
+    real*8, parameter     :: ONE_PLUS_EPS = 1. + 1E-12
     integer, parameter    :: MAX_ITER = 100
     integer               :: count
 
-    A = coeffs(1)
-    B = coeffs(2)
-    C = coeffs(3)
-    D = coeffs(4)
+    x1 = 0
+    x2 = 0
+    y = 0
 
     if (A == 0) then
       x = d_qnan
-      call qdrtc(B, C, D, x1, x2, y)
+      if (.not. only_real) call qdrtc(B, C, D, x1, x2, y)
     elseif (D == 0) then
       x = 0.
-      call qdrtc(A, B, C, x1, x2, y)
+      if (.not. only_real) call qdrtc(A, B, C, x1, x2, y)
     else
       x = -(B / A) / 3
       call eval(x, A, B, C, D, Q, Qprime, b1, c2)
@@ -362,15 +388,9 @@ contains
         endif
       endif
 
-      call qdrtc(A, b1, c2, x1, x2, y)
+      if (.not. only_real) call qdrtc(A, b1, c2, x1, x2, y)
     endif
 
-    roots_real(1) = x
-    roots_imag(1) = 0.
-    roots_real(2) = x1
-    roots_imag(2) = y
-    roots_real(3) = x2
-    roots_imag(3) = -y
 
   contains
     pure subroutine eval(x, A, B, C, D, Q, Qprime, b1, c2)
