@@ -87,8 +87,7 @@ contains
     real*8, intent(in)      :: A(1:4,0:4)
     real*8, intent(out)   :: r(1:4), im
 
-    call polynomial_roots_deg2([1.0d0, A(2,1), A(2,0)], r(1:2), im)
-    if (r(1) < r(2)) r(1:2) = [r(2), r(1)]
+    call polynomial_roots_deg2_sub(1.0d0, A(2,1), A(2,0), r(1), r(2), im)
   end subroutine
 
 
@@ -366,10 +365,10 @@ contains
 
     if (A == 0) then
       x = d_qnan
-      if (.not. only_real) call qdrtc(B, C, D, x1, x2, y)
+      if (.not. only_real) call polynomial_roots_deg2_sub(B, C, D, x1, x2, y)
     elseif (D == 0) then
       x = 0.
-      if (.not. only_real) call qdrtc(A, B, C, x1, x2, y)
+      if (.not. only_real) call polynomial_roots_deg2_sub(A, B, C, x1, x2, y)
     else
       x = -(B / A) / 3
       call eval(x, A, B, C, D, Q, Qprime, b1, c2)
@@ -399,7 +398,7 @@ contains
         endif
       endif
 
-      if (.not. only_real) call qdrtc(A, b1, c2, x1, x2, y)
+      if (.not. only_real) call polynomial_roots_deg2_sub(A, b1, c2, x1, x2, y)
     endif
 
 
@@ -420,19 +419,6 @@ contains
       Q = c2 * x + D
     end subroutine
 
-    pure subroutine qdrtc(A, B, C, x1, x2, y)
-      implicit none
-
-      real*8, intent(in)    :: A, B, C
-      real*8, intent(out)   :: x1, x2, y
-
-      ! Local variables
-      real*8                :: roots(2)
-
-      call polynomial_roots_deg2([A, B, C], roots, y)
-      x1 = roots(1)
-      x2 = roots(2)
-    end subroutine
   end
 
 end module
