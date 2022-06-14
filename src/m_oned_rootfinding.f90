@@ -56,7 +56,7 @@ contains
       
       it = it + 1
 
-      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', it, '   ', &
+      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD10.3)') '  ', it, '   ', &
       x_val, '   ', dfun_val, '  ', abs(step)
 
       converged = abs(step) < xTol
@@ -149,7 +149,7 @@ contains
 
       ! Convergence test and possible exit
       xm = 0.5*(xc - xb)
-      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD9.3)') '  ', iter, '   ', &
+      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD10.3)') '  ', iter, '   ', &
         xc, '   ', fc, '  ', abs(xm)
 
       toler = xTol
