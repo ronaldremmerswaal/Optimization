@@ -97,7 +97,7 @@ contains
     x_prev = x0
     x_val = x0
     dfun_val = dfun(x_val, fun_val)
-    if (dfun_val==0) return
+    if (fun_val==0) return
 
     if (verbose_) then
       write(*,'(A)') '/---------------------------------------------------\'
@@ -121,7 +121,7 @@ contains
       if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD10.3)') '  ', it, '   ', &
       x_val, '   ', fun_val, '  ', abs(step)
 
-      converged = abs(step) < xTol
+      converged = abs(step) < xTol .or. fun_val==0
       if (converged) exit
     enddo
   end function
