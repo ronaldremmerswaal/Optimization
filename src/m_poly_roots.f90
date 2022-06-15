@@ -261,6 +261,7 @@ contains
 
     ! Local variables
     real*8                  :: D, Bscaled, Cscaled, maxSqrt
+    real*8, parameter       :: MAX_SQRT = 1.340780792994260D+154
 
     imag = 0.
     if (A == 0) then
@@ -279,8 +280,7 @@ contains
       Bscaled = B / A
       Cscaled = C / A
 
-      maxSqrt = sqrt(huge(Bscaled))
-      if (Bscaled > maxSqrt .or. Bscaled < -maxSqrt) then
+      if (Bscaled > MAX_SQRT .or. Bscaled < -MAX_SQRT) then
         ! Bscaled^2 would overflow, so we let √D ≈ |Bscaled| instead
         x1 = -Cscaled / Bscaled
         x2 = Cscaled / x1
