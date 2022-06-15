@@ -76,6 +76,55 @@ contains
       ans = dfun(x)
     end function
   end function
+  
+  real*8 function newton(dfun, x0, xTol, maxIt, verbose, maxStep) result(x_val)
+    implicit none
+
+    procedure(der_optim_fun) :: dfun
+    real*8, intent(in)    :: x0, xTol
+    integer, intent(in)   :: maxIt
+    logical, intent(in), optional :: verbose
+    real*8, intent(in), optional :: maxStep
+    
+    ! Local variables
+    real*8                :: dfun_val, x_prev, step, maxStep_, fun_val
+    integer               :: it
+    logical               :: verbose_, converged
+
+    verbose_ = merge(verbose, .false., present(verbose))
+    maxStep_ = merge(maxStep, 1D100, present(maxStep))
+
+    x_prev = x0
+    x_val = x0
+    dfun_val = dfun(x_val, fun_val)
+    if (dfun_val==0) return
+
+    if (verbose_) then
+      write(*,'(A)') '/---------------------------------------------------\'
+      write(*,'(A,I4)') '               Starting Newton'
+      write(*,'(A)') ''
+      write(*,'(A)') '      Iter       Sol         FunVal    Err. est.'
+    endif
+
+    converged = .false.
+    ! Find bracket using Newton
+    do it=2,maxIt
+      x_prev = x_val
+
+      step = - fun_val / dfun_val
+      if (present(maxStep) .and. abs(step) > maxStep_) then
+        step = sign(maxStep, step)
+      endif
+      x_val = x_prev + step
+      dfun_val = dfun(x_val, fun_val)
+      
+      if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD10.3)') '  ', it, '   ', &
+      x_val, '   ', fun_val, '  ', abs(step)
+
+      converged = abs(step) < xTol
+      if (converged) exit
+    enddo
+  end function
 
   real*8 function brent(fun, xaIn, xbIn, xTol, maxIt, faIn, fbIn, verbose) result(xsol)
     implicit none

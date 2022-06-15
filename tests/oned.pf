@@ -174,6 +174,7 @@ contains
 
     @assertEqual(xExact, x, X_TOLERANCE)
     @assertLessThan(it, MAX_IT)
+
   contains
 
     real*8 function dfun(xin, y) result(dy)
@@ -190,4 +191,40 @@ contains
     end
     
   end subroutine
+
+  ! TODO why doesn't this compile:
+  ! @Test
+  ! subroutine test_newton()
+  !   use funit
+  !   use m_optimization
+
+  !   implicit none
+
+  !   real*8                  :: x, xExact
+  !   integer, parameter      :: MAX_IT = 20
+  !   integer                 :: it
+
+  !   it = 0
+  !   xExact = 2 * datan(1.0d0)
+  !   x = newton(dfun, 1.0D0, X_TOLERANCE, MAX_IT, verbose=.true.)
+
+  !   @assertEqual(xExact, x, X_TOLERANCE)
+  !   @assertLessThan(it, MAX_IT)
+
+  ! contains
+
+  !   real*8 function dfun(xin, y) result(dy)
+    
+  !     implicit none
+      
+  !     real*8, intent(in)      :: xin
+  !     real*8, intent(out), optional :: y
+
+  !     if (present(y)) y = dcos(xin)
+
+  !     dy = -dsin(xin)
+  !     it = it + 1
+  !   end function
+  ! end subroutine
+
 end module
