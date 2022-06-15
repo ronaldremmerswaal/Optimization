@@ -52,6 +52,10 @@ contains
         step = sign(maxStep, step)
       endif
       x_val = x_prev + step
+      
+      converged = abs(step) < xTol
+      if (converged) exit
+
       dfun_val = dfun(x_val, fun_val)
       
       it = it + 1
@@ -59,8 +63,6 @@ contains
       if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD10.3)') '  ', it, '   ', &
       x_val, '   ', dfun_val, '  ', abs(step)
 
-      converged = abs(step) < xTol
-      if (converged) exit
     enddo
 
     if (.not. converged) then
@@ -116,13 +118,15 @@ contains
         step = sign(maxStep, step)
       endif
       x_val = x_prev + step
-      dfun_val = dfun(x_val, fun_val)
-      
+
       if (verbose_) write(*,'(A,I8,A,1PD10.3,A,1PD10.3,A,1PD10.3)') '  ', it, '   ', &
       x_val, '   ', fun_val, '  ', abs(step)
 
       converged = abs(step) < xTol .or. fun_val==0
       if (converged) exit
+      
+      dfun_val = dfun(x_val, fun_val)
+
     enddo
   end function
 
